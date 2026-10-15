@@ -192,6 +192,7 @@ This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model
     - `sudo apt install sysstat -y`
     - Enable sysstat
         - `sudo systemctl enable --now sysstat`
+    - Checkout the repo: https://github.com/sysstat/sysstat
 
 9. Install rsyslog
     - `sudo apt install rsyslog -y`
