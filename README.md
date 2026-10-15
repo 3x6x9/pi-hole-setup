@@ -143,7 +143,7 @@ This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model
       ```
     - Enable and check config
       ```
-      sudo ufw enable
+      sudo ufw enable # Press Yes
       sudo ufw status verbose
       ```
 6. Install unattended-upgrades
@@ -154,11 +154,12 @@ This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model
         - `sudo nano /etc/apt/apt.conf.d/50unattended-upgrades`
             - use defaults, but
               ```
-              Unattended-Upgrade::Allowed-Origins {
-                  "${distro_id}:${distro_codename}";
-                  "${distro_id}:${distro_codename}-security";
-                  // "${distro_id}:${distro_codename}-updates";
+              Unattended-Upgrade::Origins-Pattern {
+                "origin=Debian,codename=${distro_codename},label=Debian";
+                "origin=Debian,codename=${distro_codename},label=Debian-Security";
+                "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";
               };
+              
               Unattended-Upgrade::AutoFixInterruptedDpkg "true";
               Unattended-Upgrade::Remove-Unused-Dependencies "true";
               ```
