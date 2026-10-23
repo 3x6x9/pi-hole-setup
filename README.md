@@ -1,4 +1,6 @@
-# How to set up the Raspberry Pi to use Pi-hole
+# How to set up Pi-hole on a Raspberry Pi
+
+https://github.com/pi-hole/pi-hole
 
 This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model B 4GB.
 
@@ -15,29 +17,31 @@ This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model
 2. Download the Raspberry Pi Imager
     - https://www.raspberrypi.com/software/
 3. Go through the setup
-    - Choose Raspberry Pi OS Lite (64-bit)
-        - no desktop environment is needed
-        - current OS: Debian Trixie (Debian 13)
-    - Choose hostname
-        - Check later `hostnamectl`
-    - Choose City for timezone settings
-        - Check later `timedatectl status`
-    - Choose a username and password (e.g. user1)
-    - Skip Wi-Fi Setup
-    - Enable Remote Access
-        - SSH connection over port 22
-    - New Raspberry Pi Connect not needed
+   1. Choose Raspberry Pi OS Lite (64-bit)
+      1. no desktop environment is needed
+      2. current OS: Debian Trixie (Debian 13)
+   2. Choose hostname 
+      - Check later `hostnamectl`
+   3. Choose City for timezone settings
+      - Check later `timedatectl status`
+   4. Choose a username and password (e.g. user1)
+   5. Skip Wi-Fi Setup 
+   6. Enable Remote Access
+      - SSH connection over port 22 
+   7. New Raspberry Pi Connect is not needed
 
 ## Connect Pi to router
 
 1. Connect the Pi to the Router via Ethernet cable
     - wired connection to the router is preferred over Wi-Fi
 2. Login to the routers settings page
-3. Reserve a static IPv4 for the Pi (e.g. 192.168.2.100)
+3. Reserve a static IPv4 for the Pi (e.g. `192.168.2.100`)
 
-## Connect to Pi via SSH
+## Pi Setup
 
-1. Common and useful linux commands
+<details>
+<summary>Common and useful linux commands</summary>
+
    ```
    # CAUTION - Execute a command with root privilages
    sudo
@@ -102,99 +106,109 @@ This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model
 
    # text ui quit (not nano or vim)
    Esc
+   
+   # Get current CPU temp in C
+   vcgencmd measure_temp
    ```
+</details>
 
-2. Open Terminal on any device (possible on Android via e.g. Termux, or on iOS via Shortcuts)
-    - `ssh 192.168.X.X -l <username>` e.g. ssh 192.168.2.100 -l user1
+### Connect via SSH
 
-3. On first startup run
-    - `sudo apt update && sudo apt upgrade -y`
-    - `sudo reboot`
+Open Terminal on any device (also possible on Android via e.g. Termux, or on iOS via Shortcuts)
+- `ssh 192.168.X.X -l <username>` e.g. ssh 192.168.2.100 -l user1
 
-4. Harden SSH Config
-    - `sudo nano /etc/ssh/sshd_config`
-        - use defaults, but (`#`or `//` usually means comment out = getting ignored)
-          ```
-          PermitRootLogin no
-          X11Forwarding no
-          ```
-        - Press to safe changes: `Ctrl+X -> Y -> Enter`
-    - `sudo systemctl restart ssh # or sudo reboot`
+### Install updates
 
-5. Install firewall (Uncomplicated firewall)
-    - `sudo apt install ufw -y`
-    - Config UFW
-      ```
-      sudo ufw default deny incoming
-      sudo ufw default allow outgoing
+On first startup run
+   1. `sudo apt update && sudo apt upgrade -y`
+   2. `sudo reboot`
 
-      # Allow SSH
-      sudo ufw allow 22/tcp
+### Harden SSH Config
 
-      # Pi-hole needs
-      sudo ufw allow 80/tcp
-      sudo ufw allow 443/tcp
-      sudo ufw allow 53/tcp
-      sudo ufw allow 53/udp
-      sudo ufw allow 67/tcp
-      sudo ufw allow 67/udp
-      sudo ufw allow 123/udp
-      sudo ufw allow 546:547/udp
-      ```
-    - Enable and check config
-      ```
-      sudo ufw enable # Press Yes
-      sudo ufw status verbose
-      ```
-6. Install unattended-upgrades
-    - `sudo apt install unattended-upgrades -y`
-    - Config unattended-upgrades
-        - `sudo dpkg-reconfigure --priority=low unattended-upgrades # text UI`
+- `sudo nano /etc/ssh/sshd_config`
+   1. use defaults, but (`#`or `//` usually means comment out = getting ignored)
+       ```  
+       PermitRootLogin no
+       X11Forwarding no
+       ```
+      - Press to safe changes: `Ctrl+X -> Y -> Enter`
+   2. `sudo systemctl restart ssh # or sudo reboot`
+
+### Install ufw (Uncomplicated firewall)
+
+- `sudo apt install ufw -y`
+    1. Config UFW
+        ```
+        sudo ufw default deny incoming
+        sudo ufw default allow outgoing
+
+        # Allow SSH
+        sudo ufw allow 22/tcp
+
+        # Pi-hole needs
+        sudo ufw allow 80/tcp
+        sudo ufw allow 443/tcp
+        sudo ufw allow 53/tcp
+        sudo ufw allow 53/udp
+        sudo ufw allow 67/tcp
+        sudo ufw allow 67/udp
+        sudo ufw allow 123/udp
+        sudo ufw allow 546:547/udp
+        ```
+    2. Enable and check config
+        ```
+        sudo ufw enable # Press Yes
+        sudo ufw status verbose
+        ```
+
+### Install unattended-upgrades
+
+- `sudo apt install unattended-upgrades -y`
+    1. Config unattended-upgrades
+        1. `sudo dpkg-reconfigure --priority=low unattended-upgrades # text UI`
             - Yes
-        - `sudo nano /etc/apt/apt.conf.d/50unattended-upgrades`
-            - use defaults, but
-              ```
-              Unattended-Upgrade::Origins-Pattern {
-                "origin=Debian,codename=${distro_codename},label=Debian";
-                "origin=Debian,codename=${distro_codename},label=Debian-Security";
-                "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";
-              };
-              
-              Unattended-Upgrade::AutoFixInterruptedDpkg "true";
-              Unattended-Upgrade::Remove-Unused-Dependencies "true";
-              ```
+    2. `sudo nano /etc/apt/apt.conf.d/50unattended-upgrades`
+        1. use defaults, but
+            ```
+            Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+            Unattended-Upgrade::Remove-Unused-Dependencies "true";
+            ```
             - Press to safe changes: `Ctrl+X -> Y -> Enter`
-    - Check if it's running
+    3. Check if it's running
         - `systemctl status unattended-upgrades`
 
+### Install fail2ban
 
-7. Install fail2ban
-    - `sudo apt install fail2ban -y`
-    - Config fail2ban
-        - `sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local`
-        - `sudo nano /etc/fail2ban/jail.local`
-            - in `[DEFAULT]`, use defaults, but
-                - `bantime = 1h`
-            - in `[sshd]`, use defaults, but
-              ```
-              enabled = true
-              filter = sshd
-              ```
-            - Press to safe changes: `Ctrl+X -> Y -> Enter`
-    - Enable and check config
-      ```
-      sudo systemctl enable --now fail2ban
-      sudo fail2ban-client status
-      sudo fail2ban-client status sshd
-      ```
+- `sudo apt install fail2ban -y`
+    1. Config fail2ban
+        1. `sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local`
+        2. `sudo nano /etc/fail2ban/jail.local`
+            ```
+           dd
+            ```
+           
+                   - in `[DEFAULT]`, use defaults, but
+                       - `bantime = 1h`
+                   - in `[sshd]`, use defaults, but
+                     ```
+                     enabled = true
+                     filter = sshd
+                     ```
+                   - Press to safe changes: `Ctrl+X -> Y -> Enter`
+       - Enable and check config
+         ```
+         sudo systemctl enable --now fail2ban
+         sudo fail2ban-client status
+         sudo fail2ban-client status sshd
+         ```
 
-8. Install sysstat
+7. Install sysstat
     - `sudo apt install sysstat -y`
     - Enable sysstat
         - `sudo systemctl enable --now sysstat`
     - Checkout the repo: https://github.com/sysstat/sysstat
 
-9. Install rsyslog
+8. Install rsyslog
     - `sudo apt install rsyslog -y`
     - Enable rsyslog
         - `sudo systemctl enable --now rsyslog`
@@ -256,10 +270,9 @@ This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model
           tail -n 20 /var/log/auth.log
           ```
 
-10. Disable unused services
+9. Disable unused services
    ```
    sudo systemctl list-unit-files --type=service --state=enabled
-
    sudo systemctl disable --now bluetooth
    ```
 
@@ -296,6 +309,8 @@ This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model
                             - take the `fd5h:p09f:1778:1::1` and choose a custom suffix e.g. `fd5h:p09f:1778:1::53`
                         - use defaults, only set
                             1. Addresses to `fd5h:p09f:1778:1::53/64`
+                            2. DNS servers to `::1`
+                            3. check: `Ignore automatically obtained DNS paramters`
             - Restart connection
               ```
               sudo reboot
@@ -333,6 +348,13 @@ This is a manual for a freshly new installed Debian 13 on a Raspberry Pi 4 Model
     - If DHCP was disabled on router, also set this back to automatic
     - `pihole uninstall`
     - https://docs.pi-hole.net/main/uninstall/
+
+Telekom Smart 3 Router
+1. Set IPv4 Address
+2. Set Gateway to Routers local address
+3. disable router dhcp ipv4
+4. enable dhcp on pi-hole admin ui
+5. ::1 into ipv6
 
 ## Configure Pi-hole
 
