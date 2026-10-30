@@ -380,6 +380,40 @@ In the router settings, set custom DNS servers:
 
 Reboot the router. Confirm that devices on the same Wi-Fi network receive `192.168.2.100` and `fd5h:p09f:1778:1::53` as their DNS servers automatically.
 
+##### Router setup
+
+If your router does not support custom DNS settings, you can set the Pi-hole as the DHCP server. Here is an example configuration for the Telekom Smart 3 router. If you have a different router, refer to its manual for similar settings.
+
+<details>
+<summary>Telekom Smart 3 router</summary>
+
+For these settings, refer to the [Telekom Smart 3 router manual](https://www.telekom.de/hilfe/downloads/bedienungsanleitung-speedport-smart-3.pdf) (available in German only).
+
+The following instructions assume you have completed the steps in [Set up DNS to use localhost](#set-up-dns-to-use-localhost).
+
+In `nmtui`, edit the active connection and set:
+
+1. **IPv4 configuration**
+   - Set the method to **Manual**.
+   - Set the address (for example, `192.168.2.100/24`).
+   - Set the gateway to the router's local address (for example, `192.168.2.1`).
+2. **IPv6 configuration**
+   - Set **DNS servers** to `::1`.
+   - Enable **Ignore automatically obtained DNS parameters**.
+
+On the router:
+
+1. Enable ULA IPv6.
+2. Disable IPv4 DHCP.
+
+In the Pi-hole admin UI, enable DHCP and configure an address range that excludes the Pi's static address (for example, `192.168.2.101` to `192.168.2.250`). Set the router gateway (for example, `192.168.2.1`) and enable:
+
+- **Enable additional IPv6 support (SLAAC + RA)**
+- **Enable DHCPv4 rapid commit (fast address assignment)**
+- **Advertise DNS server multiple times**
+
+</details>
+
 ### Updating
 
 Run `pihole -up`. See the [Pi-hole update guide](https://docs.pi-hole.net/main/update/).
@@ -390,14 +424,6 @@ Run `pihole -up`. See the [Pi-hole update guide](https://docs.pi-hole.net/main/u
 2. If DHCP was disabled on the router, set it back to automatic as well.
 3. Run `pihole uninstall`.
 4. See the [Pi-hole uninstall guide](https://docs.pi-hole.net/main/uninstall/).
-
-### Telekom Smart 3 router
-
-1. Set the IPv4 address.
-2. Set the gateway to the router's local address.
-3. Disable IPv4 DHCP on the router.
-4. Enable DHCP in the Pi-hole admin UI.
-5. Set `::1` for IPv6.
 
 ## Configure Pi-hole
 
