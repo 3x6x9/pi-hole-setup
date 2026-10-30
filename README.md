@@ -34,7 +34,7 @@ This is a manual for a fresh installation of Debian 13 on a Raspberry Pi 4 Model
 
 ## Pi Setup
 
-<details>
+<details open>
 <summary>Common and useful Linux commands</summary>
 
 ```sh
@@ -104,6 +104,15 @@ sudo apt autoclean
 
 # Get the current CPU temperature in Celsius
 vcgencmd measure_temp
+
+# Check the current time and date
+date
+
+# Useful Pi-hole commands
+pihole -up
+pihole -r
+pihole -d
+pihole -g
 ```
 </details>
 
@@ -368,8 +377,8 @@ Pi-hole will listen on the local IPv6 addresses. Because the configured IPv6 add
 
 In the router settings, set custom DNS servers:
 
-1. IPv4 primary: `192.168.2.100`
-2. IPv6 primary: `fd5h:p09f:1778:1::53`
+1. IPv4 primary/secondary: `192.168.2.100`
+2. IPv6 primary/secondary: `fd5h:p09f:1778:1::53`
 
 Reboot the router. Confirm that devices on the same Wi-Fi network receive `192.168.2.100` and `fd5h:p09f:1778:1::53` as their DNS servers automatically.
 
