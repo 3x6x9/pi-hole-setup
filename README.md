@@ -357,8 +357,6 @@ systemctl status NetworkManager # Expected to be running
 6. In **Show IPv6 Config**, choose a ULA address (`fdxx::/8`) using the current prefix and a custom suffix. For example, use `fd5h:p09f:1778:1::53` based on the prefix from `IP6.DNS[1]`.
 7. Keep the other defaults and set:
    - **Addresses** to `fd5h:p09f:1778:1::53/64`.
-   - **DNS servers** to `::1`.
-   - **Ignore automatically obtained DNS parameters**.
 8. Reboot to apply the changes:
    ```sh
    sudo reboot
