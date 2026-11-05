@@ -408,9 +408,10 @@ On the router:
 
 In the Pi-hole admin UI, enable DHCP and configure an address range that excludes the Pi's static address (for example, `192.168.2.101` to `192.168.2.250`). Set the router gateway (for example, `192.168.2.1`) and enable:
 
-- **Enable additional IPv6 support (SLAAC + RA)**
 - **Enable DHCPv4 rapid commit (fast address assignment)**
 - **Advertise DNS server multiple times**
+
+Important: **Enable additional IPv6 support (SLAAC + RA)** needs to be disabled in the Pi-hole admin UI
 
 </details>
 
